@@ -24,13 +24,21 @@ class MSE(Loss):
         return ypred - y
 
 
-class Hinge(Loss):
+'''class Hinge(Loss):
     # Cout Hinge loss
     def forward(self, y, ypred):
         return np.maximum(0, -y * ypred).sum()
 
     def backward(self, y, ypred):
-        return -y
+        return -y'''
+
+class Hinge(Loss):
+    # Cout Hinge loss
+    def forward(self, y, ypred):
+        return np.maximum(0, -y*ypred).sum()
+
+    def backward(self, y, ypred):
+        return (-y*ypred > 0).float() * -y.float()
 
 
 class CE(Loss):
