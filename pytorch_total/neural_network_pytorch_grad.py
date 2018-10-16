@@ -28,7 +28,7 @@ class NeuralNetwork():
     
 
     def backward(self, X, y, epsilon):
-        self.optimize.zero_grad()
+
         costf = self.loss.forward(y, self.predict(X))
         costf.backward(retain_graph=True)
         self.optimize.step()
@@ -80,13 +80,9 @@ class NeuralNetwork():
             return False
         elif type(layer) == list:
             self.layers.extend( layer )
-            for l in layer:
-                if str(l.w) != 'None':
-                    self.param[l.w] = l.w
         else:
             self.layers.append( layer )
-            if str(layer.w) != 'None':
-                self.param [layer.w] = layer.w
+        self.param [layer.w] = layer.w
 
     def score(self,X,y):
         ypred = self.forward(X)[-1]
