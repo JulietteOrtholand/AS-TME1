@@ -1,12 +1,12 @@
 # coding: utf-8
 
-######################
-### Neural Network ###
-######################
-
 import numpy as np
 import torch
 from torch.autograd import Variable
+
+######################
+### Neural Network ###
+######################
 
 class NeuralNetwork():
     
@@ -53,8 +53,8 @@ class NeuralNetwork():
                     xi, yi = xi.reshape(1,-1), yi.reshape(1,-1)
                     costs.append(self. backward(xi, yi, epsilon=epsilon) )
                     costs_test.append( self.loss.forward(y_test, self.predict(X_test)) )
-                scores_test.append(self.score(X_test, y_test))
-                scores.append(self.score(X_train, y_train))
+                    scores_test.append(self.score(X_test, y_test))
+                    scores.append(self.score(X_train, y_train))
         else:
             for it in range(max_iter):
                 inds = list(range(len(X_train)))
@@ -68,9 +68,10 @@ class NeuralNetwork():
                     scores.append(self.score(X_train,y_train))
         return  costs, costs_test,scores,scores_test
 
+
     def predict(self, X):
-           # Prédiction
-           return self.forward(X)[-1]
+        # Prédiction
+        return self.forward(X)[-1]
 
 
     def add_layer(self, layer):
@@ -82,19 +83,22 @@ class NeuralNetwork():
         else:
             self.layers.append( layer )
 
-    def score(self,X,y):
-        ypred = self.forward(X)[-1]
-        score = 0
-        for i in range(0,len(y)):
-            if y[i].argmax() == ypred[i].argmax():
-                score += 1
-        return(score/len(y))
 
     def pop_layer(self, layer):
         # Enlever le dernier module
         self.layers.pop(-1)
 
-'''    def fit(self, X, y, mode='batch', max_iter=100, epsilon=1e-2, batch_size=60):
+        
+    def score(self,X,y):
+        ypred = self.predict(X)
+        score = 0
+        for i in range(0,len(y)):
+            if y[i].argmax() == ypred[i].argmax():
+                score += 1
+        return (score/len(y))
+
+
+    """def fit(self, X, y, mode='batch', max_iter=100, epsilon=1e-2, batch_size=60):
         ### Entraine le modèle avec backpropagation et rend l'évolution du cout
         costs = []
 
@@ -118,6 +122,5 @@ class NeuralNetwork():
                 for i in range(0, len(X), batch_size):
                     xi, yi = X[i:i+batch_size], y[i:i+batch_size]
                     costs.append( self.backward(xi, yi, epsilon=epsilon) )
-        return costs'''
-
-
+        return costs
+    """

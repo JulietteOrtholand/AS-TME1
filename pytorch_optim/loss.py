@@ -21,7 +21,6 @@ class MSE(Loss):
         return val
 
 
-
 ##################
 ### Hinge Loss ###
 ##################
@@ -30,6 +29,7 @@ class Hinge(Loss):
     def forward(self, y, ypred):
         val = torch.max(torch.zeros(y.shape), -y*ypred).sum()
         return val
+
 
 #####################
 ### Cross Entropy ###

@@ -35,7 +35,8 @@ class NeuralNetwork():
         return costf
     
 
-    def fit_and_test(self, X_train, y_train, X_test, y_test, mode='batch', max_iter=100, epsilon=1e-2, batch_size=60):
+    def fit_and_test(self, X_train, y_train, X_test, y_test, mode='batch', 
+        max_iter=100, epsilon=1e-2, batch_size=60):
         ### Entraine le modèle avec backpropagation et rend l'évolution du cout
         costs, costs_test,scores,scores_test = [], [],[],[]
         self.optimize = torch.optim.Adam(self.param)
@@ -67,7 +68,7 @@ class NeuralNetwork():
                     costs_test.append( self.loss.forward(y_test, self.predict(X_test)) )
                     scores_test.append(self.score(X_test, y_test))
                     scores.append(self.score(X_train,y_train))
-        return  costs, costs_test,scores,scores_test
+        return  costs, costs_test, scores, scores_test
 
     def predict(self, X):
            # Prédiction

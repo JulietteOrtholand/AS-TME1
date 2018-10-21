@@ -24,10 +24,6 @@ class MSE(Loss):
         val.backward(retain_graph=True)
         return val
 
-    def backward(self, y, ypred):
-        return ypred - y
-
-
 
 ##################
 ### Hinge Loss ###
@@ -39,8 +35,6 @@ class Hinge(Loss):
         val.backward(retain_graph=True)
         return val
 
-    def backward(self, y, ypred):
-        return (-y*ypred > 0).float() * -y.float()
 
 #####################
 ### Cross Entropy ###
@@ -50,6 +44,3 @@ class CrossEntropy(Loss):
         val = -1*(y*torch.log(ypred) + (1-y)*torch.log(1-ypred)).sum()
         val.backward(retain_graph=True)
         return val
-    
-    def backward(self, y, ypred):
-        return -1*(y/ypred - (1-y)/(1-ypred))
