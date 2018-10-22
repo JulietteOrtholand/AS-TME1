@@ -33,3 +33,7 @@ def softmax2(x):
     return softmax(stable_x)
 
 softmax_g = lambda x: softmax2(x) * (1 - softmax2(x))
+
+relu = lambda x: torch.max(x, torch.zeros(r.shape))
+
+relu_g = lambda x: (torch.sign(x)+1)/2
