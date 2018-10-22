@@ -11,7 +11,7 @@ from torch.autograd import Variable
 class NeuralNetwork():
     
     def __init__(self, loss):
-        # Initialisation
+        ### Initialisation
         self.loss = loss
         self.layers = []
         self.param = []
@@ -27,7 +27,8 @@ class NeuralNetwork():
         return outs
     
 
-    def backward(self, X, y, epsilon):
+    def backward(self, X, y):
+        ### Rétropropagation
         self.optimize.zero_grad()
         costf = self.loss.forward(y, self.predict(X))
         costf.backward(retain_graph=True)
@@ -35,13 +36,15 @@ class NeuralNetwork():
         return costf
     
 
-    def fit_and_test(self, X_train, y_train, X_test, y_test, mode='batch', max_iter=100, epsilon=1e-2, batch_size=60):
+    def fit_and_test(self, X_train, y_train, X_test, y_test, mode="batch", max_iter=100, epsilon=1e-2, batch_size=60):
         ### Entraine le modèle avec backpropagation et rend l'évolution du cout
-        costs, costs_test,scores,scores_test = [], [],[],[]
-        self.optimize = torch.optim.Adam(self.param)
+        costs, costs_test,scores,scores_test = [],[],[],[]
+        model = torch.nn.Sequential(*self.layers)
+        self.optimize = torch.optim.SGD(model.parameters(), lr=epsilon)
+        
         if mode=='batch':
             for it in range(max_iter):
-                costs.append( self.backward(X_train, y_train, epsilon=epsilon) )
+                costs.append( self.backward(X_train, y_train) )
                 costs_test.append( self.loss.forward(y_test, self.predict(X_test)) )
                 scores_test.append(self.score(X_test,y_test))
                 scores.append(self.score(X_train, y_train))
@@ -69,13 +72,14 @@ class NeuralNetwork():
                     scores.append(self.score(X_train,y_train))
         return  costs, costs_test,scores,scores_test
 
+
     def predict(self, X):
-           # Prédiction
-           return self.forward(X)[-1]
+        ### Prédiction
+        return self.forward(X)[-1]
 
 
     def add_layer(self, layer):
-        # Ajouter un module ou une liste de modules
+        ### Ajouter un module ou une liste de modules
         if layer==None:
             return False
         elif type(layer) == list:
@@ -86,6 +90,7 @@ class NeuralNetwork():
             self.layers.append( layer )
             self.param.append({'params': layer.parameters()})
 
+
     def score(self,X,y):
         ypred = self.forward(X)[-1]
         score = 0
@@ -93,6 +98,7 @@ class NeuralNetwork():
             if y[i].argmax() == ypred[i].argmax():
                 score += 1
         return(score/len(y))
+
 
     def pop_layer(self, layer):
         # Enlever le dernier module
