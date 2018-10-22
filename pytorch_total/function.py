@@ -2,19 +2,6 @@
 
 import torch
 
-class FunctionLinear:
-    @staticmethod
-    def forward( x, w):
-        return torch.mm(x,w)  
-    
-    @staticmethod
-    def backward(delta, x, w):
-        #to check formula
-        grad_x = torch.mm(delta, w.t())
-        grad_w = torch.mm(x.t(),delta)
-        return grad_x,grad_w
-
-
 ##############################
 ### Fonctions d'activation ###
 ##############################
@@ -34,9 +21,6 @@ def softmax2(x):
 
 softmax_g = lambda x: softmax2(x) * (1 - softmax2(x))
 
-<<<<<<< HEAD
 relu = lambda x: torch.max(x, torch.zeros(r.shape))
 
 relu_g = lambda x: (torch.sign(x)+1)/2
-=======
->>>>>>> d108bbb944f32ec618a898faf9d749b6d3c4087a
