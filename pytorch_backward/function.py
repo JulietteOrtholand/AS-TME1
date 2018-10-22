@@ -33,3 +33,4 @@ def softmax2(x):
     return softmax(stable_x)
 
 softmax_g = lambda x: softmax2(x) * (1 - softmax2(x))
+
