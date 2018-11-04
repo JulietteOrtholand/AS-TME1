@@ -24,16 +24,14 @@ class NeuralNetwork():
         for layer in self.layers:
             outs.append( layer.forward(_in) )
             _in = outs[-1]
-        print(outs)
         return outs
     
 
     def backward(self, X, y):
         ### Rétropropagation
-        print('OKK')
         self.optimize.zero_grad()
         costf = self.loss.forward(y, self.predict(X))
-        costf.backward()
+        costf.backward(retain_graph=True)
         self.optimize.step()
         return costf
     

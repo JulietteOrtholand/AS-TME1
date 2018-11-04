@@ -19,35 +19,34 @@ class NeuralNetwork():
 
     def forward(self, X):
         ### Forward
-        _in, outs = X, [X]
-        
+        outs = [X]
         for layer in self.layers:
-            outs.append( layer.forward(_in) )
-            _in = outs[-1]
-        print(outs)
+            outs.append(layer.forward(outs[-1]))
         return outs
     
 
     def backward(self, X, y):
         ### Rétropropagation
-        print('OKK')
+        test =  self.predict(X)
+        costf = self.loss.forward(test,y)
+        #print(costf.requires_grad)
         self.optimize.zero_grad()
-        costf = self.loss.forward(y, self.predict(X))
-        costf.backward()
+        costf.backward(retain_graph = True)
+        #print(X.grad)
         self.optimize.step()
+        #print(self.param)
         return costf
     
 
     def fit_and_test(self, X_train, y_train, X_test, y_test, mode="batch", max_iter=100, epsilon=1e-2, batch_size=60):
         ### Entraine le modèle avec backpropagation et rend l'évolution du cout
         costs, costs_test,scores,scores_test = [],[],[],[]
-        model = torch.nn.Sequential(*self.layers)
-        self.optimize = torch.optim.SGD(model.parameters(), lr=epsilon)
+        self.optimize = torch.optim.SGD(self.param, lr=epsilon)
         
         if mode=='batch':
             for it in range(max_iter):
                 costs.append( self.backward(X_train, y_train) )
-                costs_test.append( self.loss.forward(y_test, self.predict(X_test)) )
+                costs_test.append( self.loss.forward( self.predict(X_test),y_test) )
                 scores_test.append(self.score(X_test,y_test))
                 scores.append(self.score(X_train, y_train))
 
@@ -57,10 +56,10 @@ class NeuralNetwork():
                 np.random.shuffle(inds)
                 for xi, yi in zip(X_train[inds], y_train[inds]):
                     xi, yi = xi.reshape(1,-1), yi.reshape(1,-1)
-                    costs.append(self. backward(xi, yi, epsilon=epsilon) )
-                    costs_test.append( self.loss.forward(y_test, self.predict(X_test)) )
-                scores_test.append(self.score(X_test, y_test))
-                scores.append(self.score(X_train, y_train))
+                    costs.append(self.backward(xi, yi)*len(y_train) )
+                    costs_test.append( self.loss.forward(self.predict(X_test), y_test) )
+                    scores_test.append(self.score(X_test, y_test))
+                    scores.append(self.score(X_train, y_train))
         else:
             for it in range(max_iter):
                 inds = list(range(len(X_train)))
@@ -68,8 +67,8 @@ class NeuralNetwork():
                 X_train, y_train = X_train[inds], y_train[inds]
                 for i in range(0, len(X_train), batch_size):
                     xi, yi = X_train[i:i+batch_size], y_train[i:i+batch_size]
-                    costs.append( self.backward(xi, yi, epsilon=epsilon) )
-                    costs_test.append( self.loss.forward(y_test, self.predict(X_test)) )
+                    costs.append( self.backward(xi, yi) )
+                    costs_test.append( self.loss.forward(self.predict(X_test), y_test) )
                     scores_test.append(self.score(X_test, y_test))
                     scores.append(self.score(X_train,y_train))
         return  costs, costs_test,scores,scores_test
@@ -79,7 +78,6 @@ class NeuralNetwork():
         ### Prédiction
         return self.forward(X)[-1]
 
-
     def add_layer(self, layer):
         ### Ajouter un module ou une liste de modules
         if layer==None:
@@ -87,11 +85,16 @@ class NeuralNetwork():
         elif type(layer) == list:
             self.layers.extend( layer )
             for lala in layer:
-                self.param.append({'params': lala.parameters()})
+                try:
+                    self.param.append(lala.weight)
+                except:
+                    print('Attention ' + str(lala) + " n'a pas d'attribut weight")
         else:
             self.layers.append( layer )
-            self.param.append({'params': layer.parameters()})
-
+            try:
+                self.param.append(layer.weight)
+            except:
+                print('Attention ' + str(layer) + " n'a pas d'attribut weight")
 
     def score(self,X,y):
         ypred = self.forward(X)[-1]
@@ -101,10 +104,10 @@ class NeuralNetwork():
                 score += 1
         return(score/len(y))
 
-
     def pop_layer(self, layer):
         # Enlever le dernier module
         self.layers.pop(-1)
+
 
 '''    def fit(self, X, y, mode='batch', max_iter=100, epsilon=1e-2, batch_size=60):
         ### Entraine le modèle avec backpropagation et rend l'évolution du cout
