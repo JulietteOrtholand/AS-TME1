@@ -20,7 +20,7 @@ def get_dataset(batch_train_size, batch_test_size, path):
             transform=transforms.Compose([
                 transforms.ToTensor(), transforms.Normalize((0.1307,),(0.3081,))
                 ])), 
-        batch_size=batch_train_size, shuffle=False)
+        batch_size=batch_train_size, shuffle=True)
 
     test_loader = torch.utils.data.DataLoader(
         datasets.MNIST(path, train=False, download=True, 
@@ -70,7 +70,7 @@ class NeuralNetwork():
 
             costsT.append( cost.item() )
             scoresT.append( self.accuracy(out, target) )
-            break
+            #break
 
         return torch.tensor(costsT).mean(), torch.tensor(scoresT).mean()
 
@@ -91,7 +91,7 @@ class NeuralNetwork():
 
             costsT.append( cost.item() )
             scoresT.append( self.accuracy(out, target) )
-            break
+            #break
 
         return torch.tensor(costsT).mean(), torch.tensor(scoresT).mean()
 
