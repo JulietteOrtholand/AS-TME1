@@ -12,7 +12,7 @@ from tqdm import tqdm
 
 ######## JEU DE DONNEES MNIST ########
 #----------------------------------------------------------------------
-def get_dataset(batch_size, path):
+def get_dataset(batch_train_size, batch_test_size, path):
     ### Obtenir train_loader, val_loader
     
     train_loader = torch.utils.data.DataLoader(
@@ -20,14 +20,14 @@ def get_dataset(batch_size, path):
             transform=transforms.Compose([
                 transforms.ToTensor(), transforms.Normalize((0.1307,),(0.3081,))
                 ])), 
-        batch_size=batch_size, shuffle=True)
+        batch_size=batch_train_size, shuffle=False)
 
     test_loader = torch.utils.data.DataLoader(
         datasets.MNIST(path, train=False, download=True, 
             transform=transforms.Compose([
                 transforms.ToTensor(), transforms.Normalize((0.1307,),(0.3081,))
                 ])), 
-        batch_size=batch_size, shuffle=False) 
+        batch_size=batch_test_size, shuffle=False) 
 
     return train_loader, test_loader
 
@@ -70,8 +70,9 @@ class NeuralNetwork():
 
             costsT.append( cost.item() )
             scoresT.append( self.accuracy(out, target) )
+            break
 
-        return sum(costsT)/len(costsT), sum(scoresT)/len(scoresT)
+        return torch.tensor(costsT).mean(), torch.tensor(scoresT).mean()
 
 
     def test(self, test_loader):
@@ -90,8 +91,9 @@ class NeuralNetwork():
 
             costsT.append( cost.item() )
             scoresT.append( self.accuracy(out, target) )
+            break
 
-        return sum(costsT)/len(costsT), sum(scoresT)/len(scoresT)
+        return torch.tensor(costsT).mean(), torch.tensor(scoresT).mean()
 
 
     def fit_eval(self, train_loader, test_loader, n_epochs=100):
@@ -116,12 +118,13 @@ class NeuralNetwork():
     def accuracy(self, ypred, y):
         ### Accuracy
         ### y n'est pas en one_hot
-        score = 0
+        """score = 0
         for i in range(0,len(y)):
             if y[i] == ypred[i].argmax():
                 score += 1
         return(score/len(y))
-
+        """
+        return (y == ypred.argmax(dim=1)).float().mean()
 
 
 ######## PLOT LOSS/ACCURACY (SCORE) ########
